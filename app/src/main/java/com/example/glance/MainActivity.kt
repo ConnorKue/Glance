@@ -1,6 +1,7 @@
 package com.example.glance
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,7 +12,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
 import com.example.glance.ui.theme.GlanceTheme
+import com.prof18.rssparser.RssParser
+import com.prof18.rssparser.model.RssChannel
+import kotlinx.coroutines.launch
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,6 +33,27 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        //start a coroutine to get the information from a hard-coded RSS URL
+        lifecycleScope.launch {
+
+            val rssParser: RssParser = RssParser()
+
+
+            val rssChannel: RssChannel = rssParser.getRssChannel("https://feeds.bbci.co.uk/news/rss.xml")
+
+            for (article in rssChannel.items) {
+                Log.d("RSS", article.title ?: "No Title")
+            }
+
+
+        }
+
+
+
+
+
+
     }
 }
 
