@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
+import androidx.room3.PrimaryKey
 import com.example.glance.ui.theme.GlanceTheme
 import com.prof18.rssparser.RssParser
 import com.prof18.rssparser.model.RssChannel
@@ -41,6 +42,48 @@ class MainActivity : ComponentActivity() {
 
         //start a coroutine to get the information from a hard-coded RSS URL
         lifecycleScope.launch {
+            //database instance
+            val db = AppDatabase.getInstance(this@MainActivity)
+
+
+            val sDao = db.sourceDao()
+
+            //hardcoded source insert to test DB
+            val sourceid = sDao.insertSource(Source(url = "https://feeds.bbci.co.uk/news/rss.xml", name = "bbc", dateAdded = System.currentTimeMillis()))
+
+            val iDal = db.itemDao()
+
+            //hardcoded item insert to test DB
+            val itemid = iDal.insertItem(Item(sourceId = sourceid, title = "testTitle", link = "fakeurl.sup", content = "testContent", publishedDate = System.currentTimeMillis(), guid = "testguid"))
+
+
+            val currentsourceTable = sDao.querySources()
+
+            var sourceNum = 1
+            for (curSource in currentsourceTable) {
+                Log.d(
+                    "DB", "source number " + sourceNum +
+                            ":\nid: " + curSource.id +
+                            "\nname: " + curSource.name
+                )
+
+                sourceNum++
+            }
+
+            val currentitemsTable = iDal.queryItems()
+            var itemNum = 1
+            //loop through all items to test DB
+            for (curItem in currentitemsTable){
+                Log.d(
+                    "DB", "item number " + itemNum +
+                            ":\nid: " + curItem.id +
+                            ":\nsourceId: " + curItem.sourceId +
+                            "\ntitlSe: " + curItem.title
+                )
+                itemNum++
+            }
+
+
 
             val rssParser: RssParser = RssParser()
 

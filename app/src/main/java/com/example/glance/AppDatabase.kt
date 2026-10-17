@@ -13,6 +13,8 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 abstract class AppDatabase : RoomDatabase() {
     abstract fun sourceDao(): SourceDao
 
+    abstract fun itemDao(): ItemDao
+
 
     companion object {
         @Volatile
