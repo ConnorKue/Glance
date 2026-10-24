@@ -45,45 +45,56 @@ class MainActivity : ComponentActivity() {
             //database instance
             val db = AppDatabase.getInstance(this@MainActivity)
 
-
+            //sources DAO
             val sDao = db.sourceDao()
 
             //hardcoded source insert to test DB
             val sourceid = sDao.insertSource(Source(url = "https://feeds.bbci.co.uk/news/rss.xml", name = "bbc", dateAdded = System.currentTimeMillis()))
 
+            //items DAO
             val iDal = db.itemDao()
 
             //hardcoded item insert to test DB
             val itemid = iDal.insertItem(Item(sourceId = sourceid, title = "testTitle", link = "fakeurl.sup", content = "testContent", publishedDate = System.currentTimeMillis(), guid = "testguid"))
 
 
+
+
+
+            //source and item have been inserted
+            //query all sources and items and log sizes of both lists
+
+            //query sources and log size
             val currentsourceTable = sDao.querySources()
-
-            var sourceNum = 1
-            for (curSource in currentsourceTable) {
-                Log.d(
-                    "DB", "source number " + sourceNum +
-                            ":\nid: " + curSource.id +
-                            "\nname: " + curSource.name
-                )
-
-                sourceNum++
-            }
-
+            Log.d("DB", "Sources after insert: " + currentsourceTable.size)
+            //query items and log size
             val currentitemsTable = iDal.queryItems()
-            var itemNum = 1
-            //loop through all items to test DB
-            for (curItem in currentitemsTable){
-                Log.d(
-                    "DB", "item number " + itemNum +
-                            ":\nid: " + curItem.id +
-                            ":\nsourceId: " + curItem.sourceId +
-                            "\ntitlSe: " + curItem.title
-                )
-                itemNum++
-            }
+            Log.d("DB", "Items after insert: " + currentitemsTable.size)
+
+            //delete the source least recently inserted
+            sDao.deleteSource(currentsourceTable.first())
+
+            //delete the source most recently inserted
+            //sDao.deleteSource(currentsourceTable.last())
 
 
+            //query both tables again and log sizes again
+
+            //query sources and log size
+            val newSourceTable = sDao.querySources()
+            Log.d("DB", "Sources after delete: " + newSourceTable.size)
+            //query items and log size
+            val newItemsTable = iDal.queryItems()
+            Log.d("DB", "Items after delete: " + newItemsTable.size)
+
+
+
+
+
+
+
+
+            //direct parsing bs
 
             val rssParser: RssParser = RssParser()
 

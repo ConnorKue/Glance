@@ -1,5 +1,6 @@
 package com.example.glance
 import androidx.room3.Dao
+import androidx.room3.Delete
 import androidx.room3.Insert
 import androidx.room3.Query
 
@@ -12,4 +13,8 @@ interface SourceDao {
 
     @Query("SELECT * FROM Source")
     suspend fun querySources(): List<Source>
+
+    @Delete
+    suspend fun deleteSource(source: Source): Int
+
 }
