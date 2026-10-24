@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.Nullable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -55,7 +56,22 @@ class MainActivity : ComponentActivity() {
             val iDal = db.itemDao()
 
             //hardcoded item insert to test DB
-            val itemid = iDal.insertItem(Item(sourceId = sourceid, title = "testTitle", link = "fakeurl.sup", content = "testContent", publishedDate = System.currentTimeMillis(), guid = "testguid"))
+//            val itemid = iDal.insertItem(Item(sourceId = sourceid, title = "testTitle", link = "fakeurl.sup", content = "testContent", publishedDate = System.currentTimeMillis(), guid = "testguid"))
+
+
+
+
+
+
+
+            //makes the parser object
+            val rssParser: RssParser = RssParser()
+
+            //makes the channel object (for a specific source) has a .items field
+            val rssChannel: RssChannel = rssParser.getRssChannel("https://feeds.bbci.co.uk/news/rss.xml")
+
+
+
 
 
 
@@ -65,14 +81,14 @@ class MainActivity : ComponentActivity() {
             //query all sources and items and log sizes of both lists
 
             //query sources and log size
-            val currentsourceTable = sDao.querySources()
-            Log.d("DB", "Sources after insert: " + currentsourceTable.size)
+//            val currentsourceTable = sDao.querySources()
+//            Log.d("DB", "Sources after insert: " + currentsourceTable.size)
             //query items and log size
-            val currentitemsTable = iDal.queryItems()
-            Log.d("DB", "Items after insert: " + currentitemsTable.size)
+//            val currentitemsTable = iDal.queryItems()
+//            Log.d("DB", "Items after insert: " + currentitemsTable.size)
 
             //delete the source least recently inserted
-            sDao.deleteSource(currentsourceTable.first())
+//            sDao.deleteSource(currentsourceTable.first())
 
             //delete the source most recently inserted
             //sDao.deleteSource(currentsourceTable.last())
@@ -81,12 +97,23 @@ class MainActivity : ComponentActivity() {
             //query both tables again and log sizes again
 
             //query sources and log size
-            val newSourceTable = sDao.querySources()
-            Log.d("DB", "Sources after delete: " + newSourceTable.size)
+//            val newSourceTable = sDao.querySources()
+//            Log.d("DB", "Sources after delete: " + newSourceTable.size)
             //query items and log size
-            val newItemsTable = iDal.queryItems()
-            Log.d("DB", "Items after delete: " + newItemsTable.size)
+//            val newItemsTable = iDal.queryItems()
+//            Log.d("DB", "Items after delete: " + newItemsTable.size)
 
+
+
+            //arguments
+            //from hardcoded BBC source
+            val currentArticle = rssChannel.items.first()
+            val sourceID = sourceid
+
+
+            val dbItem = ItemMapper(currentArticle, sourceID)
+
+            Log.d("RSS", dbItem.toString())
 
 
 
@@ -96,10 +123,8 @@ class MainActivity : ComponentActivity() {
 
             //direct parsing bs
 
-            val rssParser: RssParser = RssParser()
 
 
-            val rssChannel: RssChannel = rssParser.getRssChannel("https://feeds.bbci.co.uk/news/rss.xml")
 
             val channelItemTitles = mutableListOf<String?>()
 
@@ -107,7 +132,7 @@ class MainActivity : ComponentActivity() {
 
                 channelItemTitles.add(article.title)
 
-                Log.d("RSS", article.title ?: "No Title")
+//                Log.d("RSS", article.pubDate ?: "No pubDate")
             }
 
             val validChannelItemTitles = mutableListOf<String>()

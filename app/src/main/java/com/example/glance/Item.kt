@@ -19,13 +19,32 @@ import androidx.room3.PrimaryKey
 )
 data class Item(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
     val sourceId: Long,
-    val title: String?,
+
+    //necessary, cant be nullable
+    val guid: String,
+    val title: String,
+    val author: String,
     val link: String?,
-    val content: String?,
     val publishedDate: Long,
-    val guid: String?
+    val description: String?,
+    //skipping content
+    val image: String?,
+    //skipping audio
+    //skipping video
+    //skipping sourceName
+    //skipping sourceURL
+    //skipping categories
+    //skipping itunes
+    val commentsUrl: String?
+    //skipping youtube
+
+
+
+
+
+
 )
 
 
