@@ -15,7 +15,7 @@ import androidx.room3.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("sourceId")]
+    indices = [Index(value = ["sourceId", "guid"], unique = true)]
 )
 data class Item(
     @PrimaryKey(autoGenerate = true)

@@ -45,75 +45,23 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             //database instance
             val db = AppDatabase.getInstance(this@MainActivity)
-
-            //sources DAO
             val sDao = db.sourceDao()
+            val iDao = db.itemDao()
 
-            //hardcoded source insert to test DB
-            val sourceid = sDao.insertSource(Source(url = "https://feeds.bbci.co.uk/news/rss.xml", name = "bbc", dateAdded = System.currentTimeMillis()))
+            val bbcUrl = "https://feeds.bbci.co.uk/news/rss.xml"
 
-            //items DAO
-            val iDal = db.itemDao()
+            //returns -1 if this url already exists, so look the id up separately
+            sDao.insertSource(Source(url = bbcUrl, name = "bbc", dateAdded = System.currentTimeMillis()))
+            val sourceId = sDao.getSourceIdByUrl(bbcUrl) ?: return@launch
 
-            //hardcoded item insert to test DB
-//            val itemid = iDal.insertItem(Item(sourceId = sourceid, title = "testTitle", link = "fakeurl.sup", content = "testContent", publishedDate = System.currentTimeMillis(), guid = "testguid"))
+            val rssParser = RssParser()
+            val rssChannel = rssParser.getRssChannel(bbcUrl)
 
-
-
-
-
-
-
-            //makes the parser object
-            val rssParser: RssParser = RssParser()
-
-            //makes the channel object (for a specific source) has a .items field
-            val rssChannel: RssChannel = rssParser.getRssChannel("https://feeds.bbci.co.uk/news/rss.xml")
-
-
-
-
-
-
-
-
-            //source and item have been inserted
-            //query all sources and items and log sizes of both lists
-
-            //query sources and log size
-//            val currentsourceTable = sDao.querySources()
-//            Log.d("DB", "Sources after insert: " + currentsourceTable.size)
-            //query items and log size
-//            val currentitemsTable = iDal.queryItems()
-//            Log.d("DB", "Items after insert: " + currentitemsTable.size)
-
-            //delete the source least recently inserted
-//            sDao.deleteSource(currentsourceTable.first())
-
-            //delete the source most recently inserted
-            //sDao.deleteSource(currentsourceTable.last())
-
-
-            //query both tables again and log sizes again
-
-            //query sources and log size
-//            val newSourceTable = sDao.querySources()
-//            Log.d("DB", "Sources after delete: " + newSourceTable.size)
-            //query items and log size
-//            val newItemsTable = iDal.queryItems()
-//            Log.d("DB", "Items after delete: " + newItemsTable.size)
-
-
-
-            //arguments
-            //from hardcoded BBC source
-            val currentArticle = rssChannel.items.first()
-            val sourceID = sourceid
-
-
-            val dbItem = ItemMapper(currentArticle, sourceID)
-
-            Log.d("RSS", dbItem.toString())
+            //map every article, dropping the ones the mapper rejected (returned null)
+            val items = rssChannel.items.mapNotNull { ItemMapper(it, sourceId) }
+            val results = iDao.insertItems(items)
+            val skipped = results.count { it == -1L }
+            Log.d("DB", "Fetched ${rssChannel.items.size}, mapped ${items.size}, inserted ${items.size - skipped}, skipped $skipped duplicates")
 
 
 
