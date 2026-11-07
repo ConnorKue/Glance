@@ -4,7 +4,7 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.Query
 import androidx.room3.OnConflictStrategy
-
+import kotlinx.coroutines.flow.Flow
 @Dao
 interface ItemDao {
 
@@ -12,8 +12,8 @@ interface ItemDao {
     suspend fun insertItems(items: List<Item>): List<Long>
 
 
-    @Query("SELECT * FROM Item")
-    suspend fun queryItems(): List<Item>
+    @Query("SELECT * FROM Item ORDER BY publishedDate DESC")
+    fun observeItems(): Flow<List<Item>>
 
 
 }
