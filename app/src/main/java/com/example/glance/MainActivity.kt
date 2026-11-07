@@ -49,12 +49,17 @@ class MainActivity : ComponentActivity() {
             sDao.insertSource(Source(url = bbcUrl, name = "bbc", dateAdded = System.currentTimeMillis()))
             val sourceId = sDao.getSourceIdByUrl(bbcUrl) ?: return@launch
 
-            val rssChannel = RssParser().getRssChannel(bbcUrl)
+            try {
+                val rssChannel = RssParser().getRssChannel(bbcUrl)
 
-            val items = rssChannel.items.mapNotNull { ItemMapper(it, sourceId) }
-            val results = iDao.insertItems(items)
-            val skipped = results.count { it == -1L }
-            Log.d("DB", "Fetched ${rssChannel.items.size}, mapped ${items.size}, inserted ${items.size - skipped}, skipped $skipped duplicates")
+                val items = rssChannel.items.mapNotNull { ItemMapper(it, sourceId) }
+                val results = iDao.insertItems(items)
+                val skipped = results.count { it == -1L }
+                Log.d("DB", "Fetched ${rssChannel.items.size}, mapped ${items.size}, inserted ${items.size - skipped}, skipped $skipped duplicates")
+            } catch (e: Exception) {
+                //offline, DNS failure, bad XML, etc. The UI keeps showing what's in the database.
+                Log.w("RSS", "Fetch failed for $bbcUrl", e)
+            }
         }
     }
 }
