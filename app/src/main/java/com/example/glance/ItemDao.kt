@@ -15,5 +15,7 @@ interface ItemDao {
     @Query("SELECT * FROM Item ORDER BY publishedDate DESC")
     fun observeItems(): Flow<List<Item>>
 
+    @Query("DELETE FROM Item WHERE publishedDate < :cutoff")
+    suspend fun deleteItemsOlderThan(cutoff: Long): Int
 
 }
